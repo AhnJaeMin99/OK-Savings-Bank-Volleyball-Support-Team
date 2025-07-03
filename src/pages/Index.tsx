@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +17,14 @@ const Index = () => {
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-orange-300/30 rounded-full blur-2xl animate-bounce"></div>
         <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-orange-500/40 rounded-full blur-lg animate-ping"></div>
         
-        {/* 읏맨 캐릭터 홍보 - 중앙 강조 */}
-        <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2 w-32 h-32 opacity-80 animate-bounce">
-          <img 
-            src="/lovable-uploads/bc398776-c73c-4e8b-b61a-e618ea6ffd28.png" 
-            alt="읏맨 캐릭터" 
-            className="w-full h-full object-contain drop-shadow-2xl"
-          />
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-2 rounded-full text-sm font-black font-korean shadow-2xl animate-pulse">
-            읏맨과 함께!
+        {/* "읏" 글자 디자인 강조 */}
+        <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2">
+          <div className="relative">
+            <div className="text-9xl font-black text-yellow-300/30 animate-pulse blur-sm">읏</div>
+            <div className="absolute inset-0 text-9xl font-black text-yellow-400 animate-bounce drop-shadow-2xl">읏</div>
+            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-2 rounded-full text-sm font-black font-korean shadow-2xl animate-pulse">
+              읏맨의 힘!
+            </div>
           </div>
         </div>
       </div>
@@ -49,9 +49,8 @@ const Index = () => {
             </div>
             <div className="flex space-x-4">
               <Button 
-                variant="outline" 
                 onClick={() => navigate('/login')}
-                className="border-3 border-yellow-400 text-yellow-300 hover:bg-yellow-400 hover:text-black backdrop-blur-sm text-sm px-8 py-3 font-korean font-bold transition-all duration-300 hover:scale-110 hover:shadow-xl shadow-yellow-400/50"
+                className="bg-gradient-to-r from-yellow-500 via-orange-400 to-orange-500 hover:from-yellow-600 hover:via-orange-500 hover:to-orange-600 text-black text-sm px-8 py-3 font-korean font-black transition-all duration-300 hover:scale-110 hover:shadow-2xl shadow-orange-400/80 border-2 border-yellow-400"
               >
                 <Shield className="w-4 h-4 mr-2" />
                 로그인
@@ -99,7 +98,7 @@ const Index = () => {
           <span className="text-yellow-300 font-black">OK금융그룹 배구단</span>의 열정적인 도전
         </p>
         
-        {/* 액션 버튼들 - 읏맨 홍보 반영 */}
+        {/* 액션 버튼들 - 통일된 디자인 */}
         <div className="flex flex-col sm:flex-row gap-8 mb-20">
           <Button 
             onClick={() => navigate('/signup')}
@@ -112,13 +111,13 @@ const Index = () => {
           </Button>
           
           <Button 
-            variant="outline"
             onClick={() => navigate('/events')}
-            className="group border-4 border-yellow-400 text-yellow-300 hover:bg-yellow-400 hover:text-black backdrop-blur-sm text-xl px-16 py-6 rounded-2xl font-korean font-black transition-all duration-500 hover:scale-125 hover:shadow-2xl hover:shadow-yellow-400/60 transform hover:-translate-y-2"
+            className="group bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:via-orange-600 hover:to-orange-700 text-black text-xl px-16 py-6 rounded-2xl shadow-2xl font-korean font-black transition-all duration-500 hover:scale-125 hover:shadow-orange-400/80 transform hover:-translate-y-2 relative overflow-hidden border-4 border-yellow-400"
           >
-            <Calendar className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
-            <span>경기 일정</span>
-            <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <Calendar className="w-6 h-6 mr-3 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="relative z-10">경기 일정</span>
+            <ArrowRight className="w-6 h-6 ml-3 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
           </Button>
         </div>
 
