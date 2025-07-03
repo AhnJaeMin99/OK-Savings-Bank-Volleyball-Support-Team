@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, Shield, Trophy, Volleyball, ArrowRight, Heart, Star, Sparkles, Zap, Target, Award } from 'lucide-react';
+import { Calendar, Users, Shield, Trophy, Volleyball, ArrowRight, Star, Sparkles, Zap, Target, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
@@ -17,20 +16,16 @@ const Index = () => {
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-orange-300/30 rounded-full blur-2xl animate-bounce"></div>
         <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-orange-500/40 rounded-full blur-lg animate-ping"></div>
         
-        {/* 캐릭터 이미지 추가 */}
-        <div className="absolute top-32 right-32 w-24 h-24 opacity-30 animate-bounce">
+        {/* 읏맨 캐릭터 홍보 - 중앙 강조 */}
+        <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2 w-32 h-32 opacity-80 animate-bounce">
           <img 
             src="/lovable-uploads/bc398776-c73c-4e8b-b61a-e618ea6ffd28.png" 
             alt="읏맨 캐릭터" 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain drop-shadow-2xl"
           />
-        </div>
-        <div className="absolute bottom-32 left-32 w-20 h-20 opacity-20 animate-pulse">
-          <img 
-            src="/lovable-uploads/bc398776-c73c-4e8b-b61a-e618ea6ffd28.png" 
-            alt="읏맨 캐릭터" 
-            className="w-full h-full object-contain transform rotate-12"
-          />
+          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-2 rounded-full text-sm font-black font-korean shadow-2xl animate-pulse">
+            읏맨과 함께!
+          </div>
         </div>
       </div>
 
@@ -73,38 +68,38 @@ const Index = () => {
         </div>
       </header>
 
-      {/* 메인 콘텐츠 - 스포츠 정신 반영 */}
+      {/* 메인 콘텐츠 - 읏맨 홍보 중심 */}
       <main className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-5rem)] px-4 text-center">
-        {/* 상단 뱃지 - 승리의 정신 */}
+        {/* 상단 뱃지 - 읏맨 홍보 */}
         <Badge className="mb-10 bg-gradient-to-r from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-600 hover:via-orange-600 hover:to-orange-700 text-black px-12 py-4 text-base rounded-full shadow-2xl backdrop-blur-sm font-korean font-black transition-all duration-500 hover:scale-110 border-4 border-yellow-400/80">
           <Award className="w-5 h-5 mr-3 animate-bounce" />
-          OK금융그룹 읏맨 전용 플랫폼
+          읏맨과 함께하는 OK금융그룹 배구단
           <Target className="w-5 h-5 ml-3 animate-pulse" />
         </Badge>
         
-        {/* 메인 제목 - 임팩트 강화 */}
+        {/* 메인 제목 - 읏맨 홍보 강화 */}
         <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight font-korean transform hover:scale-105 transition-transform duration-500">
-          <span className="text-yellow-300 drop-shadow-2xl animate-pulse">승리를 향한</span>
+          <span className="text-yellow-300 drop-shadow-2xl animate-pulse">읏맨과 함께</span>
         </h2>
         
-        {/* 서브 제목 - 스포츠 정신 */}
+        {/* 서브 제목 - 읏맨 캐릭터 중심 */}
         <div className="flex items-center justify-center mb-10 transform hover:scale-105 transition-transform duration-300">
           <span className="text-3xl md:text-5xl font-black text-white font-korean mr-4 drop-shadow-2xl">
-            열정적인 도전
+            승리로 가는 길
           </span>
           <div className="flex space-x-2">
-            <Heart className="w-10 h-10 text-orange-300 animate-pulse" />
+            <Sparkles className="w-10 h-10 text-orange-300 animate-pulse" />
             <Volleyball className="w-10 h-10 text-orange-200 animate-bounce" />
           </div>
         </div>
         
-        {/* 설명 텍스트 - 팀 정신 강조 */}
+        {/* 설명 텍스트 - 읏맨 캐릭터 홍보 */}
         <p className="text-xl md:text-2xl text-yellow-100 mb-16 max-w-4xl leading-relaxed font-korean font-bold drop-shadow-lg">
-          함께 뛰고, 함께 응원하며, 함께 승리하는<br />
-          <span className="text-yellow-300 font-black">OK금융그룹 읏맨 배구단</span>의 열정적인 순간들
+          마스코트 <span className="text-yellow-300 font-black">읏맨</span>과 함께하는<br />
+          <span className="text-yellow-300 font-black">OK금융그룹 배구단</span>의 열정적인 도전
         </p>
         
-        {/* 액션 버튼들 - 스포츠 정신 반영 */}
+        {/* 액션 버튼들 - 읏맨 홍보 반영 */}
         <div className="flex flex-col sm:flex-row gap-8 mb-20">
           <Button 
             onClick={() => navigate('/signup')}
@@ -112,7 +107,7 @@ const Index = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <Trophy className="w-6 h-6 mr-3 relative z-10 animate-bounce" />
-            <span className="relative z-10">읏맨 도전하기</span>
+            <span className="relative z-10">읏맨과 함께하기</span>
             <Zap className="w-6 h-6 ml-3 relative z-10 group-hover:rotate-180 transition-transform duration-500" />
           </Button>
           
@@ -127,11 +122,11 @@ const Index = () => {
           </Button>
         </div>
 
-        {/* 기능 카드 섹션 - 스포츠 테마 */}
+        {/* 기능 카드 섹션 - 읏맨 테마 */}
         <div className="w-full max-w-7xl">
           <h3 className="text-3xl md:text-4xl font-black text-yellow-300 mb-16 font-korean drop-shadow-2xl flex items-center justify-center">
             <Award className="w-8 h-8 mr-4 animate-bounce" />
-            읏맨 스피릿을 경험하세요
+            읏맨과 함께하는 특별한 경험
             <Target className="w-8 h-8 ml-4 animate-spin" style={{animationDuration: '4s'}} />
           </h3>
           
@@ -184,18 +179,18 @@ const Index = () => {
         </div>
       </main>
 
-      {/* 푸터 - 팀 정신 반영 */}
+      {/* 푸터 - 읏맨 홍보 */}
       <footer className="relative z-10 backdrop-blur-md bg-black/40 text-white py-10 border-t-4 border-orange-400/60">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-4 mb-6">
             <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-full p-3 shadow-2xl border-4 border-yellow-400/60">
               <Volleyball className="h-6 w-6 text-white animate-pulse" />
             </div>
-            <span className="text-xl font-black font-korean text-yellow-300">OK금융그룹 읏맨 배구단</span>
+            <span className="text-xl font-black font-korean text-yellow-300">읏맨과 함께하는 OK금융그룹 배구단</span>
             <Award className="w-6 h-6 text-yellow-400 animate-bounce" />
           </div>
           <p className="text-yellow-200 font-korean font-bold">
-            © 2024 OK금융그룹. 하나된 마음, 승리를 향한 열정
+            © 2024 OK금융그룹. 읏맨과 함께 승리를 향한 열정
           </p>
         </div>
       </footer>
