@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,10 +20,10 @@ const Signup = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [sentCode, setSentCode] = useState('');
+  const [serverMessage, setServerMessage] = useState("");
+  const [serverResult, setServerResult] = useState<string | null>(null);
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleEmailSubmit = async () => {
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "비밀번호 불일치",
@@ -34,10 +33,10 @@ const Signup = () => {
       return;
     }
 
-    if (!formData.email.includes('@ok') && !formData.email.includes('@okfinancialgroup')) {
+    if (!formData.email.includes('@naver.com')) {
       toast({
         title: "이메일 오류",
-        description: "OK금융그룹 이메일(@ok 또는 @okfinancialgroup)만 사용 가능합니다.",
+        description: "naver.com 이메일만 사용 가능합니다.",
         variant: "destructive",
       });
       return;
@@ -63,26 +62,31 @@ const Signup = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (formData.verificationCode === sentCode) {
-        setStep(3);
-        toast({
-          title: "회원가입 완료",
-          description: "성공적으로 가입되었습니다!",
-        });
-      } else {
-        toast({
-          title: "인증 실패",
-          description: "인증 코드가 올바르지 않습니다.",
-          variant: "destructive",
-        });
+    // 실제 서버 요청 예시 (데모용, 기존 코드와 병합 필요)
+    try {
+      const res = await fetch("https://your-api-url.com/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          code: formData.verificationCode,
+        }),
+      });
+      const data = await res.json();
+      setServerMessage(data.message);
+      setServerResult(data.result);
+      if (data.result === "success") {
+        // 성공 처리 (예: setStep(3) 등)
       }
-      setIsLoading(false);
-    }, 1000);
+    } catch (err) {
+      setServerMessage("서버 통신 오류가 발생했습니다.");
+      setServerResult("fail");
+    }
+    setIsLoading(false);
   };
 
   const renderStep1 = () => (
-    <form onSubmit={handleEmailSubmit} className="space-y-4">
+    <form className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name">이름</Label>
         <div className="relative">
@@ -150,14 +154,17 @@ const Signup = () => {
 
       <Alert>
         <AlertDescription>
-          OK금융그룹 임직원만 가입 가능합니다. 회사 이메일로 인증이 진행됩니다.
+          OK저축은행 읏맨 임직원만 가입 가능합니다. 회사 이메일로 인증이 진행됩니다.
         </AlertDescription>
       </Alert>
 
-      <Button 
-        type="submit" 
+      <Button
+        type="button"
         className="w-full bg-blue-600 hover:bg-blue-700"
         disabled={isLoading}
+        onClick={async () => {
+          await handleEmailSubmit();
+        }}
       >
         {isLoading ? "인증 코드 발송 중..." : "인증 코드 받기"}
       </Button>
@@ -186,6 +193,20 @@ const Signup = () => {
           required
         />
       </div>
+
+      {/* 서버 메시지 텍스트 표시 */}
+      {serverMessage && (
+        <div
+          style={{
+            color: serverResult === "success" ? "#16a34a" : "#dc2626",
+            fontWeight: 500,
+            marginTop: 4,
+            textAlign: "center",
+          }}
+        >
+          {serverMessage}
+        </div>
+      )}
 
       <Alert>
         <AlertDescription>
@@ -256,7 +277,7 @@ const Signup = () => {
             </div>
             <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
           </div>
-          <p className="text-gray-600">OK금융그룹 임직원 전용 가입</p>
+          <p className="text-gray-600">OK저축은행 읏맨 임직원 전용 가입</p>
         </div>
 
         <Card className="shadow-lg">

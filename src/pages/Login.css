@@ -1,0 +1,295 @@
+:root {
+  --ok-white: #ffffff;
+  --ok-gray: #333;
+  --ok-orange: #ffb400;
+  --ok-orange-dark: #e69a00;
+  --ok-yellow: #ffe6a7;
+  --ok-radius: 1.2rem;
+  --ok-max-width: 760px;
+  --ok-max-height: 440px;
+  font-size: 16px;
+  font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+}
+
+body {
+  align-items: center;
+  background: linear-gradient(135deg, var(--ok-orange) 0%, var(--ok-yellow) 100%);
+  display: grid;
+  height: 100vh;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+.ok-container {
+  background: rgba(255,255,255,0.22);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  width: 90vw;
+  max-width: 820px;
+  min-width: 340px;
+  height: 90vh;
+  min-height: 540px;
+  max-height: 95vh;
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.3s;
+  z-index: 1000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.ok-container__form {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  min-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.ok-container--signin {
+  left: 0;
+  opacity: 1;
+  z-index: 100;
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+.ok-container.right-panel-active .ok-container--signin {
+  transform: translateX(100%);
+  opacity: 0;
+  z-index: 10;
+}
+
+.ok-container--signup {
+  left: 0;
+  opacity: 0;
+  z-index: 50;
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+.ok-container.right-panel-active .ok-container--signup {
+  animation: ok-show 0.6s;
+  opacity: 1;
+  transform: translateX(100%);
+  z-index: 50;
+}
+
+.ok-container__overlay {
+  height: 100%;
+  left: 50%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  transition: transform 0.6s ease-in-out;
+  width: 50%;
+  z-index: 10;
+}
+.ok-container.right-panel-active .ok-container__overlay {
+  transform: translateX(-100%);
+}
+
+.ok-overlay {
+  background: linear-gradient(135deg, var(--ok-orange-dark) 0%, var(--ok-orange) 100%);
+  height: 100%;
+  left: -100%;
+  position: relative;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+  width: 200%;
+  display: flex;
+}
+.ok-container.right-panel-active .ok-overlay {
+  transform: translateX(50%);
+}
+
+.ok-overlay__panel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 50%;
+  padding: 0 2.5rem;
+  color: #fff;
+}
+.ok-overlay--left {
+  left: 0;
+  transform: translateX(-20%);
+}
+.ok-container.right-panel-active .ok-overlay--left {
+  transform: translateX(0);
+}
+.ok-overlay--right {
+  right: 0;
+  transform: translateX(0);
+}
+.ok-container.right-panel-active .ok-overlay--right {
+  transform: translateX(20%);
+}
+
+.ok-overlay__panel.ok-overlay--left h2 {
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin-bottom: 1.2rem;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ok-form__title {
+  font-weight: 900;
+  font-size: 2.3rem;
+  margin: 0 0 2rem 0;
+  color: var(--ok-orange-dark);
+  z-index: 200;
+  position: relative;
+  letter-spacing: -1px;
+}
+
+.ok-form {
+  background: rgba(255,255,255,0.18);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px rgba(31,38,135,0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 2.2rem;
+  height: 100%;
+  max-height: 100%;
+  text-align: center;
+  width: 100%;
+  z-index: 150;
+  position: relative;
+}
+
+.ok-input {
+  background-color: rgba(255,255,255,0.45);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 0.9rem;
+  padding: 1.25rem 1.1rem;
+  margin: 0.7rem 0;
+  width: 100%;
+  outline: none;
+  transition: border 0.2s;
+  box-shadow: 0 2px 8px rgba(31,38,135,0.06);
+  z-index: 200;
+  position: relative;
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.22rem;
+  box-sizing: border-box;
+  color: #222;
+}
+.ok-input::placeholder {
+  color: #bdbdbd;
+  font-size: 1.05rem;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.ok-btn {
+  background: linear-gradient(90deg, var(--ok-orange) 0%, var(--ok-orange-dark) 74%);
+  border-radius: 1.2rem;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 0.1rem;
+  padding: 1.25rem 0;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in, background 0.2s;
+  margin-top: 1.5rem;
+  margin-bottom: 1.2rem;
+  z-index: 200;
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 2px 8px rgba(31,38,135,0.10);
+  opacity: 0.98;
+}
+.ok-btn:active {
+  transform: scale(0.97);
+}
+.ok-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.3);
+}
+.ok-btn.ok-ghost {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  margin-top: 2.2rem;
+}
+.ok-btn.ok-ghost:hover {
+  background: #fff;
+  color: var(--ok-orange-dark);
+}
+
+@keyframes ok-show {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 10;
+  }
+  50%, 100% {
+    opacity: 1;
+    z-index: 50;
+  }
+}
+
+@media (max-width: 900px) {
+  .ok-container {
+    width: 98vw;
+    max-width: 420px;
+    height: auto;
+    min-height: 500px;
+  }
+  
+  .ok-container__form {
+    width: 100%;
+  }
+  
+  .ok-container__overlay {
+    display: none;
+  }
+  
+  .ok-form {
+    padding: 0 1.2rem;
+  }
+  
+  .ok-form__title {
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .ok-btn {
+    font-size: 1rem;
+    padding: 0.9rem 0;
+    margin-top: 1.2rem;
+  }
+  
+  .ok-input {
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+  
+  .ok-overlay__panel.ok-overlay--left h2 {
+    font-size: 1.3rem;
+    white-space: normal;
+  }
+} 

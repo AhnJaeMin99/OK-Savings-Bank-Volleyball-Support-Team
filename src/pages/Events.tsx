@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,11 @@ const Events = () => {
       date: "2024년 7월 15일 (월)",
       time: "19:00 - 21:00",
       venue: "수원실내체육관",
-      teams: "현대캐피탈 vs OK금융그룹 읽기나이스공격수",
+      teams: "현대캐피탈 vs OK저축은행 읏맨 읽기나이스공격수",
       maxParticipants: 100,
       currentParticipants: 45,
       status: "모집중",
-      description: "V리그 남자부 플레이오프 결승전! OK금융그룹을 응원하러 함께 가요!",
+      description: "V리그 남자부 플레이오프 결승전! OK저축은행 읏맨을 응원하러 함께 가요!",
       isSpecial: true
     },
     {
@@ -97,7 +96,7 @@ const Events = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "모집중": return "bg-green-100 text-green-800";
+      case "모집중": return "bg-blue-100 text-blue-800";
       case "마감임박": return "bg-orange-100 text-orange-800";
       case "마감": return "bg-gray-100 text-gray-800";
       default: return "bg-blue-100 text-blue-800";
@@ -112,12 +111,12 @@ const Events = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[120rem] mx-auto px-2 md:px-6">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/')} 
                 className="text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -132,7 +131,7 @@ const Events = () => {
                 <p className="text-sm text-gray-600">관람 신청 가능한 경기</p>
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-3 items-center">
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/login')}
@@ -145,31 +144,59 @@ const Events = () => {
               >
                 결과 보기
               </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/admin')}
+                className="text-gray-500 hover:text-orange-600 font-semibold"
+              >
+                관리자 전용
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[120rem] mx-auto px-2 md:px-6 py-8">
+        {/* 읏맨 마스코트 상단 배치 + 말풍선 */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative flex flex-col items-center">
+            {/* 말풍선 */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-gray-800 text-base md:text-lg font-bold rounded-xl px-6 py-2 shadow-lg border border-gray-200 whitespace-nowrap z-10">
+              "OK저축은행 읏맨과 함께하는 특별한 배구 이벤트!"
+            </div>
+            <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-full p-3 md:p-5 shadow-2xl border-4 border-yellow-300/70 flex items-center justify-center">
+              <img
+                src="/lovable-uploads/144.svg"
+                alt="OK저축은행 읏맨"
+                className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-xl"
+                style={{ filter: 'drop-shadow(0 12px 48px rgba(0,0,0,0.18))' }}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Page Title */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             🏐 배구 경기 관람 이벤트
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            OK금융그룹 임직원을 위한 특별한 배구 경기 관람 기회입니다. 
+            OK저축은행 읏맨 임직원을 위한 특별한 배구 경기 관람 기회입니다. 
             동료들과 함께 응원하며 소중한 추억을 만들어보세요!
           </p>
         </div>
 
         {/* Events Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
           {volleyballEvents.map((event) => (
-            <Card 
-              key={event.id} 
-              className={`hover:shadow-lg transition-all duration-300 ${
-                event.isSpecial ? 'ring-2 ring-orange-200 bg-gradient-to-br from-orange-50 to-white' : ''
-              }`}
+            <Card
+              key={event.id}
+              className={`relative hover:shadow-lg transition-all duration-300
+                ${event.status === '마감'
+                  ? 'border border-gray-300 bg-gray-50 text-gray-500'
+                  : 'border border-orange-300 bg-white text-gray-900'}
+                rounded-3xl
+              `}
             >
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
@@ -179,9 +206,12 @@ const Events = () => {
                     )}
                     <CardTitle className="text-xl">{event.title}</CardTitle>
                   </div>
-                  <Badge className={getStatusColor(event.status)}>
-                    {event.status}
-                  </Badge>
+                  {/* 상태 뱃지 우상단 */}
+                  <span className={`absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold shadow-sm
+                    ${event.status === '마감' ? 'bg-gray-300 text-gray-600' : 'bg-blue-100 text-blue-700'}`}
+                  >
+                    {event.status === '마감' ? '마감됨' : '진행중'}
+                  </span>
                 </div>
                 <CardDescription className="text-base">
                   {event.description}
@@ -244,44 +274,19 @@ const Events = () => {
                   </p>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => handleApply(event.id, event.title)}
-                  disabled={event.status === "마감" || appliedEvents.includes(event.id)}
-                  className={`w-full ${
-                    appliedEvents.includes(event.id) 
-                      ? 'bg-green-600 hover:bg-green-700' 
-                      : event.status === "마감"
-                      ? 'bg-gray-400'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
+                  disabled={event.status === '마감'}
+                  className={`w-full py-3 text-lg font-bold rounded-2xl shadow-md transition-all duration-200 border-none focus:outline-none focus:ring-2
+                    ${event.status === '마감' ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white'}
+                  `}
+                  style={event.status === '마감' ? { pointerEvents: 'none', cursor: 'not-allowed' } : {}}
                 >
-                  {appliedEvents.includes(event.id) 
-                    ? "✓ 신청 완료" 
-                    : event.status === "마감" 
-                    ? "마감됨" 
-                    : "관람 신청하기"
-                  }
+                  {event.status === '마감' ? '마감됨' : '관람 신청하기'}
                 </Button>
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center mt-12 p-8 bg-white rounded-lg shadow-md">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            더 많은 이벤트가 준비되고 있습니다!
-          </h3>
-          <p className="text-gray-600 mb-6">
-            OK금융그룹 임직원을 위한 다양한 스포츠 이벤트를 준비하고 있습니다.
-          </p>
-          <Button 
-            onClick={() => navigate('/signup')}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            회원가입하고 알림 받기
-          </Button>
         </div>
       </div>
     </div>

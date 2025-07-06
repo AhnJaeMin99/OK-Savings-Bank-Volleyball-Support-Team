@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,8 +28,8 @@ const Results = () => {
       title: "V리그 남자부 결승전",
       date: "2024년 7월 15일",
       venue: "수원실내체육관",
-      teams: "현대캐피탈 vs OK금융그룹 읽기나이스공격수",
-      result: "OK금융그룹 승리! 🏆",
+      teams: "현대캐피탈 vs OK저축은행 읏맨 읽기나이스공격수",
+      result: "OK저축은행 읏맨 승리! 🏆",
       score: "3-2 (25-23, 23-25, 25-22, 22-25, 15-12)",
       participants: 45,
       satisfaction: 4.8,
@@ -145,7 +144,7 @@ const Results = () => {
             }`}
           >
             <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
-              OK금융그룹 임직원 여러분과 함께한 배구 경기 관람이 성황리에 마무리되었습니다! 
+              OK저축은행 읏맨 임직원 여러분과 함께한 배구 경기 관람이 성황리에 마무리되었습니다! 
               함께 응원하고 즐거운 시간을 보내주신 모든 분들께 진심으로 감사드립니다.
             </p>
           </div>
@@ -294,7 +293,7 @@ const Results = () => {
             감사합니다! 🙏
           </h3>
           <p className="text-xl text-blue-100 mb-6">
-            OK금융그룹 임직원 여러분의 적극적인 참여 덕분에 
+            OK저축은행 읏맨 임직원 여러분의 적극적인 참여 덕분에 
             성공적인 이벤트가 될 수 있었습니다!
           </p>
           <div className="flex justify-center space-x-4">

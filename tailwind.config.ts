@@ -61,7 +61,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				okorange: {
+					DEFAULT: '#ffb400',
+					light: '#ffe6a7',
+					dark: '#e69a00',
+				},
+				okgray: {
+					DEFAULT: '#666666',
+					light: '#cccccc',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
