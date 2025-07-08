@@ -150,6 +150,64 @@ const Login = () => {
     // eslint-disable-next-line
   }, [isVerified]);
 
+  const userEmail = localStorage.getItem('ok_user_email');
+
+  if (userEmail) {
+    return (
+      <div style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundImage: 'url(/lovable-uploads/baegu-neteu.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}>
+        <div style={{
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '32px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          padding: '48px 36px',
+          minWidth: '340px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+          <img src="/lovable-uploads/144.svg" alt="읏맨" style={{ width: 90, height: 90, marginBottom: 16 }} />
+          <h2 className="text-2xl font-bold text-center mt-4 mb-2">로그인된 이메일</h2>
+          <div style={{
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            color: '#2563eb',
+            background: 'rgba(37,99,235,0.07)',
+            borderRadius: '12px',
+            padding: '12px 24px',
+            marginBottom: 12,
+            marginTop: 8,
+            wordBreak: 'break-all',
+          }}>{userEmail}</div>
+          <button onClick={() => { localStorage.removeItem('ok_user_email'); window.location.reload(); }}
+            style={{
+              marginTop: 12,
+              background: '#ff8800',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '10px 24px',
+              fontWeight: 700,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}>
+          로그아웃
+        </button>
+      </div>
+    </div>
+  );
+}
+
   return (
     <div style={{
       width: '100vw',
@@ -275,7 +333,8 @@ const Login = () => {
           {/* 로그인 폼 */}
           <div className="ok-container__form ok-container--signin">
             <form className="ok-form" onSubmit={handleLogin}>
-              <h2 className="ok-form__title">로그인</h2>
+              <h2 className="text-2xl font-bold text-center mt-4">OK저축은행 읏맨</h2>
+              <p className="text-center text-gray-500 mb-6">읏맨은 OK저축은행의 공식 마스코트입니다.</p>
               <input 
                 type="email" 
                 name="email"
@@ -301,7 +360,7 @@ const Login = () => {
           <div className="ok-container__overlay">
             <div className="ok-overlay">
               <div className="ok-overlay__panel ok-overlay--left">
-                <h2>OK저축은행 읏맨 회원이신가요?</h2>
+                <h2>읏맨 회원이신가요?</h2>
                 <p>신뢰의 금융, 열정의 배구단, 읏맨과 함께 특별한 경험을 시작하세요!</p>
                 <button 
                   className="ok-btn ok-ghost" 

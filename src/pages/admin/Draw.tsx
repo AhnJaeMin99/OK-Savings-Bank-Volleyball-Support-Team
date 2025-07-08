@@ -3,8 +3,9 @@ import React, { useRef, useEffect, useState } from "react";
 const BASE_WIDTH = 900;
 const BASE_HEIGHT = 800;
 const BASE_BALL_RADIUS = 20;
-const BASE_FLIPPER_LENGTH = 220;
-const BASE_FLIPPER_Y = BASE_HEIGHT - 70;
+const BASE_CROCODILE_WIDTH = 280;
+const BASE_CROCODILE_HEIGHT = 120;
+const BASE_CROCODILE_Y = BASE_HEIGHT - 80;
 const BASE_BUMPER_RADIUS = 40;
 const BASE_BUMPERS = [
   { x: 200, y: 220 },
@@ -23,11 +24,15 @@ export default function Draw({ applicationList = [] }) {
   const [canvasSize, setCanvasSize] = useState({ w: BASE_WIDTH, h: BASE_HEIGHT });
   const canvasRef = useRef(null);
   const [balls, setBalls] = useState([]);
-  const [flipperAngle, setFlipperAngle] = useState(0);
+  const [crocodileOpen, setCrocodileOpen] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [particles, setParticles] = useState([]);
   const [winner, setWinner] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // 최소 게임 시간(15초) 보장 로직
+  const MIN_GAME_TIME = 15 * 1000; // 15초
+  const [gameStartTime, setGameStartTime] = useState(0);
 
   // 반응형 크기 조정
   useEffect(() => {
@@ -45,6 +50,7 @@ export default function Draw({ applicationList = [] }) {
   const handleStart = () => {
     setWinner(null);
     setShowConfetti(false);
+    setGameStartTime(Date.now());
     const { w, h } = canvasSize;
     const scaleX = w / BASE_WIDTH;
     const scaleY = h / BASE_HEIGHT;
@@ -52,13 +58,13 @@ export default function Draw({ applicationList = [] }) {
       applicationList.map((row, i) => ({
         x: w / 2 + (i - applicationList.length / 2) * 60 * scaleX,
         y: 100 * scaleY,
-        vx: (Math.random() - 0.5) * 0.12 * scaleX,
-        vy: 0.08 * scaleY + Math.random() * 0.08 * scaleY,
+        vx: (Math.random() - 0.5) * 0.22 * scaleX, // 더 빠르게
+        vy: 0.18 * scaleY + Math.random() * 0.18 * scaleY, // 더 빠르게
         color: `hsl(${(i * 360) / (applicationList.length || 1)}, 85%, 60%)`,
         alive: true,
         email: row.email,
         bounceCount: 0,
-        maxBounce: 35 + Math.floor(Math.random() * 6),
+        maxBounce: 25 + Math.floor(Math.random() * 4), // 튕김 횟수 줄임
         glow: 0,
       }))
     );
@@ -74,57 +80,210 @@ export default function Draw({ applicationList = [] }) {
     const scaleX = w / BASE_WIDTH;
     const scaleY = h / BASE_HEIGHT;
     const BALL_RADIUS = BASE_BALL_RADIUS * scaleX;
-    const FLIPPER_LENGTH = BASE_FLIPPER_LENGTH * scaleX;
-    const FLIPPER_Y = BASE_FLIPPER_Y * scaleY;
+    const CROCODILE_WIDTH = BASE_CROCODILE_WIDTH * scaleX;
+    const CROCODILE_HEIGHT = BASE_CROCODILE_HEIGHT * scaleY;
+    const CROCODILE_Y = BASE_CROCODILE_Y * scaleY;
     const BUMPER_RADIUS = BASE_BUMPER_RADIUS * scaleX;
     const BUMPERS = BASE_BUMPERS.map(b => ({ x: b.x * scaleX, y: b.y * scaleY }));
 
+    function drawCrocodileMouth(x, y, width, height, isOpen) {
+      ctx.save();
+      
+      // 악어 입 본체 (타원형)
+      ctx.beginPath();
+      ctx.ellipse(x, y, width / 2, height / 2, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#22c55e";
+      ctx.shadowColor = "#16a34a";
+      ctx.shadowBlur = 20 * scaleX;
+      ctx.fill();
+      ctx.lineWidth = 4 * scaleX;
+      ctx.strokeStyle = "#15803d";
+      ctx.stroke();
+      
+      // 악어 입 안쪽 (어두운 색)
+      ctx.beginPath();
+      ctx.ellipse(x, y, width / 2 - 8 * scaleX, height / 2 - 8 * scaleY, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#14532d";
+      ctx.fill();
+      
+      // 이빨 그리기
+      const teethCount = 8;
+      const toothWidth = 6 * scaleX;
+      const toothHeight = 12 * scaleY;
+      
+      // 위쪽 이빨
+      for (let i = 0; i < teethCount; i++) {
+        const angle = (i - teethCount / 2) * 0.3;
+        const toothX = x + Math.sin(angle) * (width / 2 - 15 * scaleX);
+        const toothY = y - height / 2 + 15 * scaleY;
+        
+        ctx.save();
+        ctx.translate(toothX, toothY);
+        ctx.rotate(angle);
+        
+        // 이빨 그림자
+        ctx.fillStyle = "#dc2626";
+        ctx.shadowColor = "#991b1b";
+        ctx.shadowBlur = 8 * scaleX;
+        ctx.fillRect(-toothWidth / 2, 0, toothWidth, toothHeight);
+        
+        // 이빨 하이라이트
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(-toothWidth / 2 + 1 * scaleX, 1 * scaleY, toothWidth - 2 * scaleX, toothHeight / 2);
+        
+        ctx.restore();
+      }
+      
+      // 아래쪽 이빨 (입이 열렸을 때만)
+      if (isOpen) {
+        for (let i = 0; i < teethCount; i++) {
+          const angle = (i - teethCount / 2) * 0.3;
+          const toothX = x + Math.sin(angle) * (width / 2 - 15 * scaleX);
+          const toothY = y + height / 2 - 15 * scaleY;
+          
+          ctx.save();
+          ctx.translate(toothX, toothY);
+          ctx.rotate(angle);
+          
+          // 이빨 그림자
+          ctx.fillStyle = "#dc2626";
+          ctx.shadowColor = "#991b1b";
+          ctx.shadowBlur = 8 * scaleX;
+          ctx.fillRect(-toothWidth / 2, -toothHeight, toothWidth, toothHeight);
+          
+          // 이빨 하이라이트
+          ctx.fillStyle = "#ef4444";
+          ctx.fillRect(-toothWidth / 2 + 1 * scaleX, -toothHeight + 1 * scaleY, toothWidth - 2 * scaleX, toothHeight / 2);
+          
+          ctx.restore();
+        }
+      }
+      
+      // 악어 눈
+      ctx.beginPath();
+      ctx.arc(x - width / 4, y - height / 3, 8 * scaleX, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fbbf24";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x - width / 4, y - height / 3, 4 * scaleX, 0, 2 * Math.PI);
+      ctx.fillStyle = "#000";
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(x + width / 4, y - height / 3, 8 * scaleX, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fbbf24";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + width / 4, y - height / 3, 4 * scaleX, 0, 2 * Math.PI);
+      ctx.fillStyle = "#000";
+      ctx.fill();
+      
+      ctx.restore();
+    }
+
     function draw() {
       ctx.clearRect(0, 0, w, h);
-      // 배경 그라데이션
+      
+      // 배경 그라데이션 (더 고퀄리티)
       const grad = ctx.createLinearGradient(0, 0, 0, h);
       grad.addColorStop(0, "#fbbf24");
-      grad.addColorStop(1, "#f59e42");
+      grad.addColorStop(0.5, "#f59e42");
+      grad.addColorStop(1, "#ea580c");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
-      // 범퍼
+      
+      // 배경 패턴 (점들)
+      ctx.save();
+      ctx.globalAlpha = 0.1;
+      for (let i = 0; i < 50; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random() * w, Math.random() * h, 2 * scaleX, 0, 2 * Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+      }
+      ctx.restore();
+      
+      // 범퍼 (더 고퀄리티)
       BUMPERS.forEach((b, i) => {
         ctx.save();
+        
+        // 범퍼 그림자
+        ctx.beginPath();
+        ctx.arc(b.x + 4 * scaleX, b.y + 4 * scaleY, BUMPER_RADIUS, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fill();
+        
+        // 범퍼 본체
         ctx.beginPath();
         ctx.arc(b.x, b.y, BUMPER_RADIUS, 0, 2 * Math.PI);
-        ctx.fillStyle = i % 2 === 0 ? "#fff" : "#ffe082";
+        const bumperGrad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, BUMPER_RADIUS);
+        bumperGrad.addColorStop(0, i % 2 === 0 ? "#fff" : "#fef3c7");
+        bumperGrad.addColorStop(1, i % 2 === 0 ? "#fef3c7" : "#f59e0b");
+        ctx.fillStyle = bumperGrad;
         ctx.shadowColor = "#facc15";
         ctx.shadowBlur = 32 * scaleX;
         ctx.fill();
+        
+        // 범퍼 테두리
         ctx.lineWidth = 5 * scaleX;
         ctx.strokeStyle = "#f59e42";
         ctx.stroke();
+        
+        // 범퍼 하이라이트
+        ctx.beginPath();
+        ctx.arc(b.x - BUMPER_RADIUS / 3, b.y - BUMPER_RADIUS / 3, BUMPER_RADIUS / 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(255,255,255,0.3)";
+        ctx.fill();
+        
         ctx.restore();
       });
-      // 플리퍼
-      ctx.save();
-      ctx.translate(w / 2, FLIPPER_Y);
-      ctx.rotate((flipperAngle * Math.PI) / 180);
-      ctx.fillStyle = "#2563eb";
-      ctx.shadowColor = "#60a5fa";
-      ctx.shadowBlur = 24 * scaleX;
-      ctx.fillRect(-FLIPPER_LENGTH / 2, -14 * scaleY, FLIPPER_LENGTH, 28 * scaleY);
-      ctx.restore();
-      // 공 + 이메일
+      
+      // 악어 입 그리기
+      drawCrocodileMouth(w / 2, CROCODILE_Y, CROCODILE_WIDTH, CROCODILE_HEIGHT, crocodileOpen);
+      
+      // 공 + 이메일 (더 고퀄리티)
       balls.forEach((ball) => {
         if (!ball.alive) return;
         ctx.save();
+        
+        // 공 그림자
+        ctx.beginPath();
+        ctx.arc(ball.x + 3 * scaleX, ball.y + 3 * scaleY, BALL_RADIUS, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fill();
+        
+        // 공 본체 (그라데이션)
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, 2 * Math.PI);
-        ctx.fillStyle = ball.color;
+        const ballGrad = ctx.createRadialGradient(
+          ball.x - BALL_RADIUS / 3, 
+          ball.y - BALL_RADIUS / 3, 
+          0, 
+          ball.x, 
+          ball.y, 
+          BALL_RADIUS
+        );
+        ballGrad.addColorStop(0, ball.color);
+        ballGrad.addColorStop(1, ball.color.replace('60%)', '40%)'));
+        ctx.fillStyle = ballGrad;
         ctx.shadowColor = ball.glow > 0 ? "#fff" : ball.color;
         ctx.shadowBlur = ball.glow > 0 ? 32 * scaleX : 10 * scaleX;
         ctx.fill();
+        
+        // 공 테두리
         ctx.lineWidth = 2 * scaleX;
         ctx.strokeStyle = "#fff";
         ctx.stroke();
+        
+        // 공 하이라이트
+        ctx.beginPath();
+        ctx.arc(ball.x - BALL_RADIUS / 3, ball.y - BALL_RADIUS / 3, BALL_RADIUS / 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.fill();
+        
         ctx.restore();
-        // 이메일 표시
+        
+        // 이메일 표시 (더 고퀄리티)
         ctx.save();
         ctx.font = `bold ${15 * scaleX}px Pretendard, sans-serif`;
         ctx.fillStyle = "#fff";
@@ -134,23 +293,33 @@ export default function Draw({ applicationList = [] }) {
         ctx.fillText(maskEmail(ball.email), ball.x, ball.y - BALL_RADIUS - 10 * scaleY);
         ctx.restore();
       });
-      // 파티클
+      
+      // 파티클 (더 고퀄리티)
       particles.forEach((p) => {
         ctx.save();
         ctx.globalAlpha = p.life;
         ctx.beginPath();
         ctx.arc(p.x, p.y, (5 + 6 * p.spark) * scaleX, 0, 2 * Math.PI);
-        ctx.fillStyle = p.spark ? "#fff176" : "#fbbf24";
+        const particleGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, (5 + 6 * p.spark) * scaleX);
+        particleGrad.addColorStop(0, p.spark ? "#fff" : "#fbbf24");
+        particleGrad.addColorStop(1, p.spark ? "#fef3c7" : "#f59e0b");
+        ctx.fillStyle = particleGrad;
+        ctx.shadowColor = p.spark ? "#fff" : "#fbbf24";
+        ctx.shadowBlur = 8 * scaleX;
         ctx.fill();
         ctx.restore();
       });
-      // 남은 공
+      
+      // 남은 공 표시 (더 고퀄리티)
       ctx.save();
-      ctx.font = `bold ${16 * scaleX}px 'Pretendard', sans-serif`;
+      ctx.font = `bold ${18 * scaleX}px 'Pretendard', sans-serif`;
       ctx.fillStyle = "#fff";
+      ctx.shadowColor = "#000";
+      ctx.shadowBlur = 4 * scaleX;
       ctx.fillText(`남은 공: ${balls.filter((b) => b.alive).length}`, 24 * scaleX, 70 * scaleY);
       ctx.restore();
-      // 1등 캔버스 표시
+      
+      // 1등 캔버스 표시 (더 고퀄리티)
       if (winner) {
         ctx.save();
         ctx.font = `bold ${36 * scaleX}px 'Pretendard', sans-serif`;
@@ -173,28 +342,36 @@ export default function Draw({ applicationList = [] }) {
 
     function update() {
       if (winner) return;
+      
+      // 악어 입 애니메이션
+      setCrocodileOpen(prev => !prev);
+      
       setBalls((prevBalls) => {
         let aliveBalls = prevBalls.filter((b) => b.alive);
         let updated = prevBalls.map((ball) => {
           if (!ball.alive) return ball;
           let { x, y, vx, vy, bounceCount, maxBounce, glow } = ball;
-          vy += 0.006 * scaleY;
-          vx *= 0.9997;
+          vy += 0.012 * scaleY; // 중력 더 강하게
+          vx *= 0.998; // 감속 더 빠르게
+          
           // 벽 충돌
           if (x < BALL_RADIUS && vx < 0) vx = -vx * 0.93;
           if (x > w - BALL_RADIUS && vx > 0) vx = -vx * 0.93;
           if (y < BALL_RADIUS && vy < 0) vy = -vy * 0.93;
-          // 플리퍼 충돌
-          if (
-            y > FLIPPER_Y - BALL_RADIUS &&
-            Math.abs(x - w / 2) < FLIPPER_LENGTH / 2 &&
-            vy > 0
-          ) {
-            vy = -Math.abs(vy) * (1.1 + flipperAngle / 60);
-            vx += flipperAngle / 8;
+          
+          // 악어 입 충돌 (공이 입에 닿으면 사라짐)
+          const mouthX = w / 2;
+          const mouthY = CROCODILE_Y;
+          const dx = x - mouthX;
+          const dy = y - mouthY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < CROCODILE_WIDTH / 2 && y > mouthY - CROCODILE_HEIGHT / 2) {
+            // 악어가 공을 먹는 효과
             spawnParticles(x, y, true, scaleX);
-            glow = 1.5;
+            return { ...ball, alive: false };
           }
+          
           // 범퍼 충돌
           BUMPERS.forEach((b) => {
             const dx = x - b.x;
@@ -208,6 +385,7 @@ export default function Draw({ applicationList = [] }) {
               glow = 2.5;
             }
           });
+          
           // 바닥에 닿으면 튕김, 일정 횟수 넘으면 죽음
           if (y > h - BALL_RADIUS) {
             if (bounceCount < maxBounce) {
@@ -220,18 +398,22 @@ export default function Draw({ applicationList = [] }) {
               return { ...ball, alive: false };
             }
           }
+          
           // glow 감소
           glow = Math.max(0, glow - 0.08);
           return { ...ball, x: x + vx, y: y + vy, vx, vy, bounceCount, glow };
         });
-        // 1등 결정
+        
+        // 1등 결정: 최소 1분이 지난 후에만
+        const now = Date.now();
         const stillAlive = updated.filter((b) => b.alive);
-        if (stillAlive.length === 1 && aliveBalls.length > 1) {
+        if (stillAlive.length === 1 && aliveBalls.length > 1 && now - gameStartTime > MIN_GAME_TIME) {
           setWinner(stillAlive[0].email);
           setShowConfetti(true);
         }
         return updated;
       });
+      
       // 파티클
       setParticles((prev) =>
         prev
@@ -264,15 +446,15 @@ export default function Draw({ applicationList = [] }) {
     animation = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(animation);
     // eslint-disable-next-line
-  }, [balls, flipperAngle, gameStarted, particles, winner, canvasSize]);
+  }, [balls, crocodileOpen, gameStarted, particles, winner, canvasSize]);
 
-  // 키보드 플리퍼 조작
+  // 키보드 악어 입 조작
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === "Space") setFlipperAngle(38); // FLIPPER_ANGLE 대신 38 사용
+      if (e.code === "Space") setCrocodileOpen(true);
     };
     const handleKeyUp = (e) => {
-      if (e.code === "Space") setFlipperAngle(0);
+      if (e.code === "Space") setCrocodileOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -281,10 +463,11 @@ export default function Draw({ applicationList = [] }) {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
-  // 터치 플리퍼 조작
+  
+  // 터치 악어 입 조작
   useEffect(() => {
-    const handleTouchStart = () => setFlipperAngle(38); // FLIPPER_ANGLE 대신 38 사용
-    const handleTouchEnd = () => setFlipperAngle(0);
+    const handleTouchStart = () => setCrocodileOpen(true);
+    const handleTouchEnd = () => setCrocodileOpen(false);
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchend", handleTouchEnd);
     return () => {
@@ -329,23 +512,22 @@ export default function Draw({ applicationList = [] }) {
             {/* 상자 애니메이션 */}
             <div className="relative flex flex-col items-center">
               {/* 상자 본체 (충분히 크게, 반응형) */}
-              <div className="w-[90vw] max-w-[500px] h-[220px] bg-yellow-200 border-4 border-orange-400 rounded-b-3xl shadow-2xl relative z-20 flex items-end justify-center overflow-visible px-4 sm:w-[400px] md:w-[500px] md:h-[220px]">
+              <div className="w-[98vw] max-w-[700px] h-[300px] bg-yellow-200 border-4 border-orange-400 rounded-b-3xl shadow-2xl relative z-20 flex items-center justify-center overflow-visible px-4 sm:w-[600px] md:w-[700px] md:h-[300px]">
                 {/* 1등 이메일 */}
                 <span
-                  className="absolute bottom-10 left-1/2 -translate-x-1/2 font-extrabold text-blue-700 animate-winner text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl"
+                  className="font-extrabold text-blue-700 animate-winner-pop text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
                   style={{
                     animationDelay: '1.1s',
-                    maxWidth: '92%',
+                    maxWidth: '96%',
                     minWidth: '120px',
-                    padding: '0 18px',
-                    overflowWrap: 'break-word',
-                    wordBreak: 'break-all',
+                    padding: '0 16px',
+                    overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    whiteSpace: 'pre-line',
+                    whiteSpace: 'nowrap',
                     display: 'block',
                     textAlign: 'center',
                     background: 'rgba(255,255,255,0.12)',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     lineHeight: 1.3,
                     fontWeight: 800,
                     letterSpacing: '0.5px',
@@ -357,7 +539,7 @@ export default function Draw({ applicationList = [] }) {
               </div>
               {/* 상자 뚜껑 (충분히 크게, 반응형) */}
               <div
-                className="w-[90vw] max-w-[500px] h-[70px] bg-orange-400 border-4 border-orange-500 rounded-t-3xl shadow-xl absolute left-0 -top-16 origin-bottom animate-lid sm:w-[400px] md:w-[500px] md:h-[70px]"
+                className="w-[98vw] max-w-[700px] h-[70px] bg-orange-400 border-4 border-orange-500 rounded-t-3xl shadow-xl absolute left-0 -top-32 origin-bottom animate-lid-away sm:w-[600px] md:w-[700px] md:h-[70px]"
                 style={{ zIndex: 30 }}
               />
               {/* 파티클/폭죽 효과 */}
@@ -390,6 +572,18 @@ export default function Draw({ applicationList = [] }) {
                   100% { transform: rotate(-100deg) translateY(-80px);}
                 }
                 .animate-lid { animation: lid 1.1s cubic-bezier(.4,1.6,.4,1) both; }
+                @keyframes lid-far {
+                  0% { transform: rotate(0deg) translateY(0); }
+                  60% { transform: rotate(-80deg) translateY(-120px); }
+                  100% { transform: rotate(-120deg) translateY(-220px); }
+                }
+                .animate-lid-far { animation: lid-far 1.1s cubic-bezier(.4,1.6,.4,1) both; }
+                @keyframes lid-away {
+                  0% { transform: rotate(0deg) translateX(0) translateY(0); }
+                  60% { transform: rotate(-80deg) translateX(-120px) translateY(-120px); }
+                  100% { transform: rotate(-160deg) translateX(-600px) translateY(-400px); opacity: 0; }
+                }
+                .animate-lid-away { animation: lid-away 1.2s cubic-bezier(.4,1.6,.4,1) both; }
                 @keyframes winner {
                   0% { opacity: 0; transform: scale(0.7);}
                   80% { opacity: 0; }
@@ -403,6 +597,13 @@ export default function Draw({ applicationList = [] }) {
                 }
                 .animate-fade-in { animation: fade-in 0.7s both; }
                 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes winner-pop {
+                  0% { opacity: 0; transform: scale(0.2) translateY(60px); }
+                  60% { opacity: 1; transform: scale(1.25) translateY(-10px); }
+                  80% { opacity: 1; transform: scale(0.95) translateY(0); }
+                  100% { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                .animate-winner-pop { animation: winner-pop 1.1s cubic-bezier(.4,1.6,.4,1) both; }
               `}</style>
             </div>
           </div>
