@@ -95,7 +95,10 @@
     @apply bg-background text-foreground font-korean;
     font-feature-settings: "rlig" 1, "calt" 1;
     line-height: 1.5;
-    background: #fff !important;
+    background: linear-gradient(135deg, #fff8f2 0%, #fff 60%, #ffe0b2 100%);
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* OK금융그룹 폰트 패밀리 정의 */

@@ -16,6 +16,8 @@ const Login = () => {
   const [authStep, setAuthStep] = useState<'signup' | 'verify'>('signup');
   const [timer, setTimer] = useState(180); // 3분(180초)
   const [timerActive, setTimerActive] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,11 +31,33 @@ const Login = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 로그인 로직 구현
-    console.log('로그인 시도:', formData);
-    // navigate('/');
+    // 관리자 계정은 바로 이동
+    if (formData.email === 'okfngroup@naver.com' && formData.password === 'okfngroup') {
+      navigate('/admin');
+      return;
+    }
+    try {
+      const res = await fetch('https://hook.us2.make.com/r67d69rdvawwe49we1p8ckmfu2thv48x', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        localStorage.setItem('ok_user_email', formData.email);
+        navigate('/events');
+      } else {
+        alert(data.message || '로그인에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('네트워크 오류로 로그인에 실패했습니다.');
+      console.error('로그인 전송 실패:', error);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -73,8 +97,9 @@ const Login = () => {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
+    setVerifyMessage('');
     try {
-      await fetch('https://hook.us2.make.com/utxra1hqjyq20vnccoywu7vbhxgmuczk', {
+      const response = await fetch('https://hook.us2.make.com/utxra1hqjyq20vnccoywu7vbhxgmuczk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +107,15 @@ const Login = () => {
           code: formData.code,
         }),
       });
+      const data = await response.json();
+      setVerifyMessage(data.message || '알 수 없는 오류가 발생했습니다.');
+      if (data.message && data.message.includes('성공')) {
+        setIsVerified(true); // 인증 성공 상태 저장
+        setTimerActive(false); // 타이머 멈춤
+        setRightPanelActive(false); // 로그인 패널로 전환
+      }
     } catch (error) {
+      setVerifyMessage('네트워크 오류가 발생했습니다.');
     }
   };
 
@@ -109,6 +142,14 @@ const Login = () => {
     return () => clearInterval(interval);
   }, [timerActive, timer]);
 
+  // 인증 성공 시 자동 로그인
+  useEffect(() => {
+    if (isVerified) {
+      handleLogin({ preventDefault: () => {} } as React.FormEvent);
+    }
+    // eslint-disable-next-line
+  }, [isVerified]);
+
   return (
     <div style={{
       width: '100vw',
@@ -123,6 +164,37 @@ const Login = () => {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
     }}>
+      {/* 홈으로 가기 버튼 - 화면 좌상단 고정 */}
+      <button
+        onClick={() => navigate('/')}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 10,
+          padding: '12px 24px',
+          background: 'rgba(255, 255, 255, 0.9)',
+          color: '#ff8800',
+          border: '2px solid #ff8800',
+          borderRadius: '12px',
+          fontWeight: 700,
+          fontSize: '16px',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        }}
+        onMouseOver={(e) => {
+          (e.target as HTMLButtonElement).style.background = '#ff8800';
+          (e.target as HTMLButtonElement).style.color = '#fff';
+        }}
+        onMouseOut={(e) => {
+          (e.target as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.9)';
+          (e.target as HTMLButtonElement).style.color = '#ff8800';
+        }}
+      >
+        🏠 홈으로
+      </button>
       {/* 뒤로 가기 버튼 - 카드 왼쪽 상단 고정 */}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div className={`ok-container${rightPanelActive ? ' right-panel-active' : ''}`} style={{ minHeight: '420px', maxHeight: '650px', height: '70vh', paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
@@ -148,7 +220,7 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  pattern="^[a-zA-Z0-9._%+-]+@okfngroup\\.com$"
+                  pattern="^[a-zA-Z0-9._%+-]+@okfngroup.com$"
                   title="사내 이메일(yourname@okfngroup.com)만 입력 가능합니다."
                 />
                 <input 
@@ -193,6 +265,9 @@ const Login = () => {
                     ? `남은 시간: ${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}`
                     : '인증 시간이 만료되었습니다. 다시 시도해 주세요.'}
                 </div>
+                {verifyMessage && (
+                  <div style={{ color: '#d97706', marginBottom: '0.5rem', fontWeight: 600 }}>{verifyMessage}</div>
+                )}
                 <button type="submit" className="ok-btn" disabled={timer <= 0}>인증하기</button>
               </form>
             )}

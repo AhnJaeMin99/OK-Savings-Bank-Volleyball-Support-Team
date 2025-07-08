@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,53 @@ import { toast } from "@/hooks/use-toast";
 const Events = () => {
   const navigate = useNavigate();
   const [appliedEvents, setAppliedEvents] = useState<number[]>([]);
+  const [gameEvents, setGameEvents] = useState([]);
+
+  useEffect(() => {
+    fetch('https://hook.us2.make.com/fs9rpp37h56g2syfg0nthr96c1wpnax7')
+      .then(res => res.text())
+      .then(text => {
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data);
+          } catch {}
+        }
+        // 관리자모드와 동일하게 배열/객체 모두 처리
+        const keys = ["경기명", "일자", "장소", "최대인원", "신청시작일", "신청마감일"];
+        let allGames = [];
+        if (Array.isArray(data)) {
+          data.forEach(op => {
+            if (op && Array.isArray(op.array)) {
+              allGames.push(...op.array.map(arr => {
+                const obj = {};
+                keys.forEach((k, i) => { obj[k] = arr[i] || ""; });
+                obj["상태"] = op.상태 || "";
+                return obj;
+              }));
+            }
+          });
+        } else if (data && typeof data === 'object') {
+          if (Array.isArray(data.array)) {
+            allGames = data.array.map(arr => {
+              const obj = {};
+              keys.forEach((k, i) => { obj[k] = arr[i] || ""; });
+              obj["상태"] = data.상태 || "";
+              return obj;
+            });
+          } else {
+            allGames = [];
+          }
+        }
+        setGameEvents(allGames);
+      })
+      .catch(() => setGameEvents([]));
+  }, []);
 
   const volleyballEvents = [
     {
@@ -65,6 +112,8 @@ const Events = () => {
       isSpecial: true
     }
   ];
+
+  const eventsToShow = gameEvents.length > 0 ? gameEvents : volleyballEvents;
 
   const handleApply = (eventId: number, eventTitle: string) => {
     const event = volleyballEvents.find(e => e.id === eventId);
@@ -188,105 +237,72 @@ const Events = () => {
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-          {volleyballEvents.map((event) => (
-            <Card
-              key={event.id}
-              className={`relative hover:shadow-lg transition-all duration-300
-                ${event.status === '마감'
-                  ? 'border border-gray-300 bg-gray-50 text-gray-500'
-                  : 'border border-orange-300 bg-white text-gray-900'}
-                rounded-3xl
-              `}
-            >
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center space-x-2">
-                    {event.isSpecial && (
-                      <Trophy className="h-5 w-5 text-orange-600" />
-                    )}
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
-                  </div>
-                  {/* 상태 뱃지 우상단 */}
-                  <span className={`absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold shadow-sm
-                    ${event.status === '마감' ? 'bg-gray-300 text-gray-600' : 'bg-blue-100 text-blue-700'}`}
-                  >
-                    {event.status === '마감' ? '마감됨' : '진행중'}
-                  </span>
-                </div>
-                <CardDescription className="text-base">
-                  {event.description}
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Calendar className="h-4 w-4 text-blue-600" />
-                    <span>{event.date}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Clock className="h-4 w-4 text-blue-600" />
-                    <span>{event.time}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <MapPin className="h-4 w-4 text-blue-600" />
-                    <span>{event.venue}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Volleyball className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium">{event.teams}</span>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-2">
-                      <Users className="h-4 w-4 text-gray-500" />
-                      <span>참가자 현황</span>
-                    </div>
-                    <span className="font-medium">
-                      {event.currentParticipants}/{event.maxParticipants}명
-                    </span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-500 ${
-                        getParticipationRate(event.currentParticipants, event.maxParticipants) >= 90 
-                          ? 'bg-red-500' 
-                          : getParticipationRate(event.currentParticipants, event.maxParticipants) >= 70 
-                          ? 'bg-orange-500' 
-                          : 'bg-blue-500'
-                      }`}
-                      style={{ 
-                        width: `${getParticipationRate(event.currentParticipants, event.maxParticipants)}%` 
-                      }}
-                    />
-                  </div>
-                  
-                  <p className="text-xs text-gray-500 text-center">
-                    {getParticipationRate(event.currentParticipants, event.maxParticipants)}% 참가
-                  </p>
-                </div>
-
-                <Button
-                  onClick={() => handleApply(event.id, event.title)}
-                  disabled={event.status === '마감'}
-                  className={`w-full py-3 text-lg font-bold rounded-2xl shadow-md transition-all duration-200 border-none focus:outline-none focus:ring-2
-                    ${event.status === '마감' ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white'}
-                  `}
-                  style={event.status === '마감' ? { pointerEvents: 'none', cursor: 'not-allowed' } : {}}
-                >
-                  {event.status === '마감' ? '마감됨' : '관람 신청하기'}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {eventsToShow.map((event, idx) => {
+            // 신청 여부 확인 (경기명 기반)
+            const eventKey = event.경기명 || event.title || idx;
+            const isApplied = appliedEvents.includes(eventKey);
+            const handleApplyEvent = async () => {
+              const userEmail = localStorage.getItem('ok_user_email') || '';
+              const payload = { ...event, email: userEmail };
+              try {
+                await fetch('https://hook.us2.make.com/9ik83kitoe4ztl9gn3yj6s9mk2vsa0gj', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload),
+                });
+                setAppliedEvents(prev => [...prev, eventKey]);
+              } catch (e) {
+                alert('신청 전송 실패');
+              }
+            };
+            return (
+              <Card
+                key={event.id || idx}
+                className={`relative hover:shadow-lg transition-all duration-300
+                  ${event.status === '마감' ? 'border border-gray-300 bg-gray-50 text-gray-500' : 'border border-orange-300 bg-white text-gray-900'}
+                  rounded-3xl
+                `}
+              >
+                {event.경기명 ? (
+                  <>
+                    <CardHeader>
+                      <CardTitle>{event.경기명}</CardTitle>
+                      <CardDescription>{event.장소}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>일자: {event.일자}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>장소: {event.장소}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>최대인원: {event.최대인원}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>신청시작일: {event.신청시작일}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>신청마감일: {event.신청마감일}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>상태: {event.상태}</div>
+                      <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                        {!isApplied && (
+                          <Button
+                            onClick={handleApplyEvent}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded"
+                          >
+                            신청
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </>
+                ) : (
+                  <>
+                    <CardHeader>
+                      <CardTitle>{event.title}</CardTitle>
+                      <CardDescription>{event.venue}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>일자: {event.date}</div>
+                      <div style={{ fontSize: 18, marginBottom: 8 }}>상태: {event.status}</div>
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>

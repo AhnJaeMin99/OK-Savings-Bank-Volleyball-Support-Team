@@ -1,8 +1,9 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 .logo {
@@ -43,8 +44,13 @@
 
 body {
   min-height: 100vh;
-  background: #fff;
+  margin: 0;
+  padding: 0;
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+  background: linear-gradient(135deg, #ff8800 0%, #fff3e0 40%, #ffb84d 80%, #ff8800 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
@@ -145,4 +151,14 @@ body {
   justify-content: center;
   padding: 0;
   margin: 0;
+}
+
+/* 관리자 레이아웃, 메인 등에도 최대너비/마진/패딩 제한 해제 */
+main, .admin-main, .admin-content, .admin-wrapper {
+  max-width: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
 }
